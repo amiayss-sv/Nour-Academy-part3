@@ -3,7 +3,7 @@ import { eleves,groupes } from "./data.js";
 
 const listeEleve = document.getElementById("liste-eleves")
 const compteur=document.getElementById("compteur")
-const chercherEleve = document.getElementById("cherche")
+const rechercheEleve = document.getElementById("search");
 
 function creerDOM(eleve) {
 
@@ -72,17 +72,39 @@ const options = groupes.map(groupe => {
 
 filtreGroupe.append(...options);
 
-filtreGroupe.addEventListener("change", () => {
-  const idGroupe = filtreGroupe.value;
-
-  const elevesFiltres = eleves.filter(eleve =>
-    idGroupe === "all" ||
-    eleve.groupeId === Number(idGroupe)
-  );
-   compteur.textContent = elevesFiltres.length 
-  afficherEleves(elevesFiltres);
-});  
 
 // Affichage initial
 afficherEleves();
-compteur.textContent = eleves.length;
+
+
+
+// chercher un eleve selon nom ou prenom 
+
+function filtrerEleves() {
+  const recherche = rechercheEleve.value.toLowerCase().trim();
+  const idGroupe = filtreGroupe.value;
+  
+  const elevesFiltres = eleves.filter(eleve => {
+    const nom = eleve.nom.toLowerCase();
+    const prenom = eleve.prenom.toLowerCase();
+    
+    const rechercheOk =
+    nom.includes(recherche) || prenom.includes(recherche);
+    
+    const groupeOk =
+    idGroupe === "all" ||
+    eleve.groupeId === Number(idGroupe);
+    
+    return rechercheOk && groupeOk;
+  });
+  
+  afficherEleves(elevesFiltres);
+   
+
+
+}
+
+//sort trier
+
+filtreGroupe.addEventListener("change", filtrerEleves)
+rechercheEleve.addEventListener("input",filtrerEleves)
