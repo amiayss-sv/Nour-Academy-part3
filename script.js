@@ -1,37 +1,88 @@
 
 import { eleves,groupes } from "./data.js";
 
-const data= document.getElementById("liste-eleves")
+const listeEleve = document.getElementById("liste-eleves")
+const compteur=document.getElementById("compteur")
+const chercherEleve = document.getElementById("cherche")
 
-eleves.forEach(eleve => {
-    data.innerHTML+= `
-    
-      <li class="rounded-2xl border border-line bg-card p-3" data-id="1">
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+function creerDOM(eleve) {
 
-              <button type="button" class="btn-fiche flex min-h-11 flex-1 items-center gap-3 text-left">
-                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand">SA</span>
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate font-medium">${eleve.prenom}</span>
-                  <span class="block text-sm text-muted">1 absence</span>
-                </span>
-                <span class="font-serif text-xl">13,5 / 20</span>
-              </button>
+  
+      const ligne =document.createElement("li")
+      ligne.classList.add("bg-white","rounded-xl","p-4","shadow-sm")
+     
+      const nom = document.createElement("h3")
+      nom.textContent=`${eleve.prenom} ${eleve.nom}`
+      nom.classList.add("font-bold","text-lg","text-black")
+     
+  
+      const absence =document.createElement("p")
+      absence.classList.add("inline-block","rounded-full","px-3","py-1","text-sm","font-medium")
+      absence.textContent=`${eleve.absences} absences`;
+      
+   if(eleve.absences>=3 ){
+    absence.classList.add("bg-red-100","text-red-700")
+   }else{
+    absence.classList.add("bg-green-100","text-green-700")
+   }
+  let moyenne;
+  
+  const moytotal = document.createElement("p");
+  
+  if (eleve.notes.length === 0) {
+    moyenne = "_";
+    moytotal.textContent = moyenne;
+  } else {
+    const total = eleve.notes.reduce(function(acc, note) {
+      return acc + note;
+    }, 0);
+  
+    moyenne = total / eleve.notes.length;
+    moytotal.textContent = ` moyenne : ${moyenne}/20`;
+  }
+  ligne.appendChild(nom)
+  ligne.appendChild(absence)
+  ligne.appendChild(moytotal)
+  
 
-              <div class="flex gap-2">
-                <button type="button" class="btn-absent h-11 rounded-full border border-line px-3 sm:px-4 text-sm font-medium hover:bg-paper">Absent</button>
-                <label class="flex-1">
-                  <span class="sr-only">Note sur 20</span>
-                  <input type="number" min="0" max="20" step="0.5" placeholder="Note"
-                         class="h-11 w-full rounded-full border border-line bg-paper px-4 text-sm lg:w-24">
-                </label>
-                <button type="button" class="btn-note h-11 rounded-full bg-ink px-3 sm:px-4 text-sm font-medium text-white hover:bg-brand">Ajouter la note</button>
-              </div>
-            </div>
-            <p class="message mt-2 text-xs text-alert" hidden>La note doit être un nombre entre 0 et 20.</p>
-          </li>
-    
-    
-    
-    `
-})
+  return ligne
+  
+}
+
+function afficherEleves(filterdata =eleves){
+listeEleve.replaceChildren();
+
+const data =filterdata.map(creerDOM)
+listeEleve.append(...data)
+
+compteur.textContent = `${filterdata.length} élèves`;
+}
+
+ // filter les groupes
+const filtreGroupe = document.getElementById("filtre-groupe");
+
+const options = groupes.map(groupe => {
+  const option = document.createElement("option");
+
+  option.value = groupe.id;
+  option.textContent = groupe.nom;
+
+  return option;
+});
+
+filtreGroupe.append(...options);
+
+filtreGroupe.addEventListener("change", () => {
+  const idGroupe = filtreGroupe.value;
+
+  const elevesFiltres = eleves.filter(eleve =>
+    idGroupe === "all" ||
+    eleve.groupeId === Number(idGroupe)
+  );
+   compteur.textContent = elevesFiltres.length 
+  afficherEleves(elevesFiltres);
+});  
+
+// Affichage initial
+afficherEleves();
+compteur.textContent = eleves.length;
