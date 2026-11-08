@@ -1,10 +1,12 @@
-
 import { eleves,groupes } from "./data.js";
 
 const listeEleve = document.getElementById("liste-eleves")
 const compteur=document.getElementById("compteur")
 const rechercheEleve = document.getElementById("search");
 const nbAlertes = document.getElementById("bilan-alertes");
+
+// AJOUT : récupérer le total des absences
+const bilanAbsences = document.getElementById("bilan-absences");
 
 const formulaire = document.getElementById("form-eleve");
 const prenom = document.getElementById("prenom");
@@ -109,8 +111,6 @@ inputNote.step = "any";
 
 inputNote.classList.add(
   "input-note",
-  // "w-1/5",
-  // "shrink-0",
   "rounded-full",
   "border",
   "px-3",
@@ -128,8 +128,7 @@ btnNote.textContent = "Ajouter la note";
 btnNote.dataset.id = eleve.id;
 
 btnNote.classList.add(
-  // "w-1/5",
-  // "shrink-0",
+
   "btn-note",
   "bg-blue-700",
   "text-white",
@@ -201,6 +200,23 @@ function calculerAlertes() {
 }
 calculerAlertes()
 
+
+// AJOUT : calculer le total des absences
+function calculerTotalAbsences() {
+
+  // Additionner les absences avec reduce()
+  const total = eleves.reduce((acc, eleve) => {
+    return acc + eleve.absences;
+  }, 0);
+
+  // Afficher le total dans HTML
+  bilanAbsences.textContent = total;
+}
+
+// AJOUT : afficher le total au chargement
+calculerTotalAbsences();
+
+
 filtreGroupe.append(...options);
 
 // AJOUT : remplir le select du formulaire US4.
@@ -260,6 +276,9 @@ listeEleve.addEventListener("click", (event) => {
     ligne.replaceWith(creerDOM(eleve));
 
     calculerAlertes();
+
+    // AJOUT : actualiser le total après chaque absence
+    calculerTotalAbsences();
 
     return;
   }
